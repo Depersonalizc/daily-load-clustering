@@ -1,8 +1,8 @@
-# Short-Term-Load-Forecasting-Pecan-Street
+# Daily Load Clustering
 
 
 
-## Dataset Overview
+## Pecan Street Dataset Overview
 
 A total of 346 residents were recorded in the [Pecanstreet Dataset](https://www.dropbox.com/sh/m20yh5v2yb72o5h/AAACsgKYdIehhV3zhiQOBb4Ka?dl=0). Nearly half of them contained missing data.
 
