@@ -7,6 +7,49 @@ import torch
 from torch import nn, functional as F
 from torch.utils.data import Dataset, DataLoader
 # Dataset
+class DS(Dataset):
+    def __init__(self, data, sep, train=True, device='cuda'):
+        super().__init__()
+        if train:
+            self.data = torch.Tensor(data[:sep]).to(device)
+        else:
+            self.data = torch.Tensor(data[sep:]).to(device)
+        self.data.unsqueeze_(1)
+    
+    def __getitem__(self, i):
+        return self.data[i]
+    
+    def __len__(self):
+        return self.data.shape[0]
+
+
+class AE_MLP(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        encoder = []
+        decoder = []
+        act = cfg['activation']
+        
+        # encoder
+        for i in range(len(cfg['encoder']) - 1):
+            cin, cout = cfg['encoder'][i], cfg['encoder'][i+1]
+            encoder.append(nn.Linear(cin, cout))
+            encoder.append(act)
+
+        # decoder
+        for i in range(len(cfg['decoder']) - 1):
+            cin, cout = cfg['decoder'][i], cfg['decoder'][i+1]
+            decoder.append(nn.Linear(cin, cout))
+            decoder.append(act)
+
+        self.encoder = nn.Sequential(*encoder)
+        self.decoder = nn.Sequential(*decoder)
+        
+    def forward(self, x):
+        latent = self.encoder(x)
+        recon = self.decoder(latent)
+        return latent, recon
+
 class View(nn.Module):
     def __init__(self, shape):
         super().__init__()
@@ -16,8 +59,9 @@ class View(nn.Module):
         return x.view(x.shape[0], *self.shape)
 
 class AE_CNN(nn.Module):
-    def __init__(self, cfg, load_dict=None):
+    def __init__(self, cfg, load_dict=None, device='cuda'):
         super().__init__()
+        self.device = device
         act = cfg['activation']
         d = cfg['latent_dim']
         
@@ -62,58 +106,19 @@ class AE_CNN(nn.Module):
         
         self.encoder = nn.Sequential(*enc)
         self.decoder = nn.Sequential(*dec)
+
+        self.to(device)
         
         if load_dict is not None:
-            self.load_state_dict(torch.load(load_dict))
+            self.load_state_dict(
+                torch.load(load_dict, map_location=self.device)
+            )
         
     def forward(self, x):
         latent = self.encoder(x)
         recon = self.decoder(latent)
         return latent, recon
         return latent
-
-
-class AE_MLP(nn.Module):
-    def __init__(self, cfg):
-        super().__init__()
-        encoder = []
-        decoder = []
-        act = cfg['activation']
-        
-        # encoder
-        for i in range(len(cfg['encoder']) - 1):
-            cin, cout = cfg['encoder'][i], cfg['encoder'][i+1]
-            encoder.append(nn.Linear(cin, cout))
-            encoder.append(act)
-
-        # decoder
-        for i in range(len(cfg['decoder']) - 1):
-            cin, cout = cfg['decoder'][i], cfg['decoder'][i+1]
-            decoder.append(nn.Linear(cin, cout))
-            decoder.append(act)
-
-        self.encoder = nn.Sequential(*encoder)
-        self.decoder = nn.Sequential(*decoder)
-        
-    def forward(self, x):
-        latent = self.encoder(x)
-        recon = self.decoder(latent)
-        return latent, recon
-
-class DS(Dataset):
-    def __init__(self, data, sep, train=True):
-        super().__init__()
-        if train:
-            self.data = torch.Tensor(data[:sep]).cuda()
-        else:
-            self.data = torch.Tensor(data[sep:]).cuda()
-        self.data.unsqueeze_(1)
-    
-    def __getitem__(self, i):
-        return self.data[i]
-    
-    def __len__(self):
-        return self.data.shape[0]
 
 
 
