@@ -18,7 +18,7 @@ Therefore, suffers from curse of dimensionality
 
 theorem
 
-![\lim_{d \to \infty} E\left(\frac{\operatorname{dist}_{\max} (d) - \operatorname{dist}_{\min} (d)}{\operatorname{dist}_{\min} (d)}\right)  \to 0](https://wikimedia.org/api/rest_v1/media/math/render/svg/b13e3be054e337e51b4e1e37fe8953d03b22a272).
+$$\lim_{d \to \infty} E\left(\frac{\operatorname{dist}_{\max} (d) - \operatorname{dist}_{\min} (d)}{\operatorname{dist}_{\min} (d)}\right)  \to 0$$
 
 instable if we use kmeans directly. 
 
@@ -92,3 +92,8 @@ Future work:
 
 design feature extractor more robust to noise. 
 
+
+
+
+
+In stability visualization sine test. 
